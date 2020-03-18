@@ -31,6 +31,7 @@ import com.toedter.calendar.JCalendar;
 import com.toedter.calendar.JDateChooser;
 
 import clases.Client;
+import clases.Hotel;
 import clases.Reserva;
 
 public class Finestra extends JFrame {
@@ -51,10 +52,7 @@ public class Finestra extends JFrame {
 	DefaultListModel<Client> modelClient;
 	JList<Reserva> llistareserva;
 	JList<Client> llistaclient;
-	ArrayList<Reserva> pendents = new ArrayList< Reserva>();
-	ArrayList<Reserva> confirmades  = new ArrayList<Reserva>();
-	ArrayList<Client> clients = new ArrayList< Client>();
-
+    Hotel hotel = new Hotel();	
 	
 
 	public Finestra() {
@@ -63,7 +61,6 @@ public class Finestra extends JFrame {
 	    setSize(1200,700);
 	    System.out.println(this.getWidth()+" - "+this.getHeight());
 	     setDefaultCloseOperation(EXIT_ON_CLOSE);
-	     setTitle("Calcular edat");
 	     setLocationRelativeTo(null);
 	     this.getContentPane().setBackground(Color.black);
 	     setResizable(true);
@@ -74,30 +71,76 @@ public class Finestra extends JFrame {
 	     crearIcones();
 	     addKeyListenerTextFieldNovaReserva();
 	     addActionListenerbotoreserva();
-	  
+	     addActionListenerbotoNomHotel();
 	     
 
 	    
 	    
+	}
+
+	private void netejacamps() {
+		dnitext.setText("");
+		dnicomprova.setIcon(iiReducedFalse);
+		dnicomprov=false;
+		nomtext.setText("");
+		nomcomprova.setIcon(iiReducedFalse);
+		nomcomprov=false;
+		cognomstext.setText("");
+		cognomcomprova.setIcon(iiReducedFalse);
+		cognomcomprov=false;
+		numpersotext.setText("");
+		numpersocomprova.setIcon(iiReducedFalse);
+		numperscomprov=false;
+		numnitstext.setText("");
+		numnitscomprova.setIcon(iiReducedFalse);
+		numnitscomprov=false;
+		botoreserva.setEnabled(false);;
+			}
+	
+private void canviarnom() {
+	this.setTitle(nomhoteltext.getText());	
+	}
+	private void addActionListenerbotoNomHotel() {
+ActionListener click = new ActionListener() {
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+	hotel.setNom(nomhoteltext.getText());
+	canviarnom();
+	
+	}
+
+	
+};
+guardahotel.addActionListener(click);
 	}
 	private void addActionListenerbotoreserva() {
 ActionListener click = new ActionListener() {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(Controller.buscarClient(clients, dnitext.getText())) {
-			pendents.add(new Reserva(Integer.parseInt(numpersotext.getText()), Controller.trobaClient(clients, dnitext.getText()), Controller.DatetoLocalDate(calendari.getDate()), Controller.DatetoLocalDate(calendari.getDate()).plusDays(Integer.parseInt(numnitstext.getText()))));
+		Reserva r;
+		if(Controller.buscarClient(hotel.getClients(), dnitext.getText())) {
+			r=new Reserva(Integer.parseInt(numpersotext.getText()), Controller.trobaClient(hotel.getClients(), dnitext.getText()), Controller.DatetoLocalDate(calendari.getDate()), Controller.DatetoLocalDate(calendari.getDate()).plusDays(Integer.parseInt(numnitstext.getText())));
+			hotel.setPendents(r);
+			model.addRow(r.retornaArray());
+			
 		}else {
-			clients.add(new Client(nomtext.getText(), cognomstext.getText(), dnitext.getText()));
-			pendents.add(new Reserva(Integer.parseInt(numpersotext.getText()), Controller.trobaClient(clients, dnitext.getText()), Controller.DatetoLocalDate(calendari.getDate()), Controller.DatetoLocalDate(calendari.getDate()).plusDays(Integer.parseInt(numnitstext.getText()))));	
-		System.out.println(Controller.trobaClient(clients, dnitext.getText()).getNom());
+			hotel.setClients(new Client(nomtext.getText(), cognomstext.getText(), dnitext.getText()));
+			r= new Reserva(Integer.parseInt(numpersotext.getText()), Controller.trobaClient(hotel.getClients(), dnitext.getText()), Controller.DatetoLocalDate(calendari.getDate()), Controller.DatetoLocalDate(calendari.getDate()).plusDays(Integer.parseInt(numnitstext.getText())));
+			hotel.setPendents(r);
+			model.addRow(r.retornaArray());
+		System.out.println(Controller.trobaClient(hotel.getClients(), dnitext.getText()).getDni());
 		System.out.println(Controller.DatetoLocalDate(calendari.getDate()));
 		System.out.println(Controller.DatetoLocalDate(calendari.getDate()).plusDays(Integer.parseInt(numnitstext.getText())));
+		System.out.println(r.getClient().getDni());
+
 		}
-			
-		
+		netejacamps();
 		
 	}
+
+	
 };
 botoreserva.addActionListener(click);
 	}
@@ -116,8 +159,14 @@ KeyListener klReserva = new KeyListener() {
 
 	if (e.getComponent().equals(dnitext)) {
 	if (dnitext.getText().matches("^[0-9]{8,8}[A-Za-z]$")) {
-		dnicomprova.setIcon(iiReducedTrue);
-		dnicomprov=true;
+		if(Controller.checkDNI(dnitext.getText())) {
+			dnicomprova.setIcon(iiReducedTrue);
+			dnicomprov=true;
+		}else {
+			dnicomprova.setIcon(iiReducedFalse);
+			dnicomprov=false;	
+		}
+		
 	}else {
 		dnicomprova.setIcon(iiReducedFalse);
 		dnicomprov=false;
@@ -152,7 +201,7 @@ numperscomprov=false;
 		
 		
 	}else if(e.getComponent().equals(numnitstext)) {
-		if(Controller.checkOnlyNumers(numnitstext.getText())) {
+		if(numnitstext.getText().matches("^(([ 01]?[1-9])|2[0-5])$")) {
 			numnitscomprova.setIcon(iiReducedTrue);
 			numnitscomprov=true;
 			
@@ -163,10 +212,11 @@ numperscomprov=false;
 		}	
 	}
 		if (dnicomprov&&nomcomprov&&cognomcomprov&&numperscomprov&&numnitscomprov) {
-			botoreserva.setVisible(true);
+			botoreserva.setEnabled(true);
 			
 		}else {
-			botoreserva.setVisible(false);
+			botoreserva.setEnabled(false);
+
 		}
 		
 	}
@@ -341,7 +391,7 @@ panell.add(botoelimina);
          botoreserva = new JButton("Reserva");
         botoreserva.setFont(new Font("arial",Font.BOLD , 13));
         botoreserva.setBounds(157, 580, 100, 40);
-        botoreserva.setVisible(false);
+		botoreserva.setEnabled(false);;
         panell.add(botoreserva);
         
         
@@ -362,10 +412,9 @@ panell.add(botoelimina);
 		reserva.setBounds(20, 70, panell.getWidth(), 40);
 		panell.add(reserva);
 		
-		
-		DefaultTableModel model = new DefaultTableModel();
-		model.addColumn("#Reserva");
+		 model = new DefaultTableModel();
 		model.addColumn("Dia");
+		model.addColumn("Dni");
 		model.addColumn("Persones");
 		model.addColumn("Habitació");
 		taula1 = new JTable(model);
