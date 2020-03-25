@@ -65,10 +65,9 @@ public class Reserva {
 				return false;
 			}	
 		}
-			return true;
 	}	
-		return true;
-
+	return true;
 	}
+	
 	
 }

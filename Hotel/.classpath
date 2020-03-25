@@ -6,9 +6,9 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="/src/lliberies/junit-4.6.jar"/>
-	<classpathentry kind="lib" path="/src/lliberies/jgoodies-looks-2.4.1.jar"/>
-	<classpathentry kind="lib" path="/src/lliberies/jgoodies-common-1.2.0.jar"/>
-	<classpathentry kind="lib" path="/src/lliberies/jcalendar-1.4.jar"/>
+	<classpathentry kind="lib" path="/media/eloi/ELOI/1r_Daw/Programacio/eclipse/Projectes/Hotel/src/lliberies/junit-4.6.jar"/>
+	<classpathentry kind="lib" path="/media/eloi/ELOI/1r_Daw/Programacio/eclipse/Projectes/Hotel/src/lliberies/jgoodies-looks-2.4.1.jar"/>
+	<classpathentry kind="lib" path="/media/eloi/ELOI/1r_Daw/Programacio/eclipse/Projectes/Hotel/src/lliberies/jgoodies-common-1.2.0.jar"/>
+	<classpathentry kind="lib" path="/media/eloi/ELOI/1r_Daw/Programacio/eclipse/Projectes/Hotel/src/lliberies/jcalendar-1.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
