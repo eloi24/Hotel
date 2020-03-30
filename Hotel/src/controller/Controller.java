@@ -4,14 +4,18 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.table.DefaultTableModel;
 
 import com.toedter.calendar.JCalendar;
+import com.toedter.calendar.JDateChooser;
 
 import model.Client;
 import model.Habitacio;
@@ -151,7 +155,6 @@ public class Controller {
 			for (Habitacio h : hotel.getHabitacions()) {
 				if (h.getNumpers() == r.getNumpersones() + i) {
 					r.setH(h);
-					System.out.println(h.getNumhab());
 					if (r.comprovaHabitacio(hotel)) {
 						return h;
 					}
@@ -175,8 +178,93 @@ public class Controller {
 		return null;
 
 	}
-	public void modificaHab(Habitacio h,String pers) {
+
+	public void modificaHab(Habitacio h, String pers) {
 		h.setNumpers(Integer.parseInt(pers));
+
+	}
+
+	public void actualitzaArray(DefaultTableModel model, DefaultTableModel model1, int row) {
+		Reserva res = hotel.getPendents().get(row);
+		hotel.getConfirmades().add(res);
+		model1.addRow(res.retornaArray1());
+		model.removeRow(row);
+		hotel.getPendents().remove(row);
+
+	}
+
+	public void mostraxData(DefaultTableModel model1, JDateChooser datechooser, boolean entrada) {
+		model1.setRowCount(0);
+		if (!entrada) {
+			for (Reserva r : hotel.getConfirmades()) {
+				if (r.getDataentrada().isEqual(DatetoLocalDate(datechooser.getDate()))) {
+					model1.addRow(r.retornaArray1());
+				}
+			}
+
+		} else {
+			for (Reserva r : hotel.getConfirmades()) {
+				if (r.getDatasortida().isEqual(DatetoLocalDate(datechooser.getDate()))) {
+					model1.addRow(r.retornaArray1());
+				}
+			}
+		}
+
+	}
+
+	public void actualitzaClient(DefaultListModel<Client> modelClient, 
+			String text) {
+		for (Reserva r : hotel.getPendents()) {
+				if (!text.isBlank()) {
+					if (r.getClient().getDni().contains(text) || r.getClient().getNom().contains(text)
+							|| r.getClient().getCognoms().contains(text)) {
+						if (modelClient.getSize()!=0) {
+							if(!modelClient.get(modelClient.getSize()-1).getDni().equals(r.getClient().getDni())) {
+								modelClient.addElement(r.getClient());
+							}	
+						}else {
+							modelClient.addElement(r.getClient());	
+						}
+						
+						
+					} 
+				}
+
+			
+
+		}
+	}
+	public void actualitzaRes(DefaultListModel<Reserva> modelReserva,Client c) {
+		modelReserva.removeAllElements();
+		if (c!=null) {
+			for (Reserva pend : hotel.getPendents()) {
+				if (c.getDni().equalsIgnoreCase(pend.getClient().getDni())){
+					modelReserva.addElement(pend);
+			}	
+			
+			
+		}
+		for (Reserva pend : hotel.getConfirmades()) {
+			if (c.getDni().equalsIgnoreCase(pend.getClient().getDni())){
+				
+					modelReserva.addElement(pend);
+	
+				
+				
+			}
+		}	
+		}
 	
 	}
+
+	public void eliminaArray(DefaultTableModel model, int row) {
+		model.removeRow(row);
+		hotel.getPendents().remove(row);
+		for (Reserva r : hotel.getPendents()) {
+			System.out.println(r.getNumpersones());
+			System.out.println(r.getDataentrada());
+			
+		}
+	}
+
 }

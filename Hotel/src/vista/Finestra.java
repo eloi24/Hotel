@@ -5,14 +5,23 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
+import javax.security.auth.callback.ConfirmationCallback;
+import javax.swing.AbstractButton;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -24,8 +33,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import com.toedter.calendar.JCalendar;
@@ -41,7 +53,6 @@ public class Finestra extends JFrame {
 	private JTextField nomhoteltext, numtext, perstext, textnomclient, dnitext, nomtext, cognomstext, numpersotext,
 			numnitstext;
 	private JButton guardahotel, guardahab, botoreserva, botoelimina;
-	private DefaultListModel<Client> modellist;
 	private JCalendar calendari;
 	private DefaultTableModel model, model1;
 	private JTable taula1, taula2;
@@ -54,7 +65,8 @@ public class Finestra extends JFrame {
 	JList<Reserva> llistareserva;
 	JList<Client> llistaclient;
 	Controller c = new Controller();
-	int i=0;
+	JToggleButton entradasortida;
+	int i = 0;
 
 	public Finestra() {
 		setLayout(null);
@@ -74,13 +86,130 @@ public class Finestra extends JFrame {
 		addActionListenerbotoreserva();
 		addActionListenerbotoNomHotel();
 		addActionListenerbotohabitacio();
+		addListenerTaulaPendents();
+		addActionListenerentradasortida();
+		addListenerJdateChooser();
+		addListenerLlistaClie();
+		addListenerLlistaRes();
 
+	}
+
+	
+
+	private void addListenerLlistaRes() {
+		ListSelectionListener llistalistener = new ListSelectionListener() {
+			
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				System.out.println("Taula Reserves");
+			}
+		};	
+		llistareserva.addListSelectionListener(llistalistener);
+	}
+
+
+
+	private void addListenerLlistaClie() {
+		ListSelectionListener llistalistener = new ListSelectionListener() {
+			
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				c.actualitzaRes(modelReserva, llistaclient.getSelectedValue());
+				System.out.println("llista");
+			}
+		};
+llistaclient.addListSelectionListener(llistalistener);
+	
+
+	
+	}
+
+
+	private void addListenerJdateChooser() {
+		datechoose.addPropertyChangeListener(new PropertyChangeListener() {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent e) {
+				c.mostraxData(model1, datechoose, entradasortida.getModel().isSelected());
+			}
+		});
+
+	}
+
+	private void addActionListenerentradasortida() {
+		ActionListener click = new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				AbstractButton abstractButton = (AbstractButton) e.getSource();
+
+				if (abstractButton.getModel().isSelected()) {
+					entradasortida.setText("Sortides");
+					c.mostraxData(model1, datechoose, abstractButton.getModel().isSelected());
+				} else {
+					entradasortida.setText("Entrades");
+					c.mostraxData(model1, datechoose, abstractButton.getModel().isSelected());
+
+				}
+			}
+		};
+		entradasortida.addActionListener(click);
+	}
+
+	private void addListenerTaulaPendents() {
+		taula1.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int row = taula1.rowAtPoint(e.getPoint());
+				if (e.getClickCount() == 2) {
+					String[] botons = { "Confirmar-la", "Descartar-la", "Cancelar" };
+					int opcio = JOptionPane.showOptionDialog(null, "Què vols fer amb aquesta reserva?", "",
+							JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, null, botons, botons[0]);
+					switch (opcio) {
+					case 0:
+						c.actualitzaArray(model, model1, row);
+						c.mostraxData(model1, datechoose, entradasortida.getModel().isSelected());
+						break;
+					case 1:
+						c.eliminaArray(model, row);
+						break;
+					case 2:
+						break;
+					}
+				}
+			}
+		});
 	}
 
 	public void netejaHab() {
 		numtext.setText("");
 		perstext.setText("");
-		i=0;
+		i = 0;
 	}
 
 	public void MsgHabitació() {
@@ -143,7 +272,7 @@ public class Finestra extends JFrame {
 		numnitscomprova.setIcon(null);
 		numnitscomprov = false;
 		botoreserva.setEnabled(false);
-		calendari.setDate(new Date());
+		calendari.setMinSelectableDate(Calendar.getInstance().getTime());
 	}
 
 	private void canviarnom() {
@@ -252,6 +381,11 @@ public class Finestra extends JFrame {
 						i++;
 					}
 
+				} else if (e.getComponent().equals(textnomclient)) {
+					modelClient.removeAllElements();
+					modelReserva.removeAllElements();
+					c.actualitzaClient(modelClient, textnomclient.getText());
+					llistaclient.setSelectedIndex(0);
 				}
 				if (dnicomprov && nomcomprov && cognomcomprov && numperscomprov && numnitscomprov) {
 					botoreserva.setEnabled(true);
@@ -262,7 +396,7 @@ public class Finestra extends JFrame {
 				}
 				if (i == 2) {
 					guardahab.setEnabled(true);
-					
+
 				}
 
 			}
@@ -273,7 +407,6 @@ public class Finestra extends JFrame {
 
 			}
 		};
-
 		dnitext.addKeyListener(klReserva);
 		nomtext.addKeyListener(klReserva);
 		cognomstext.addKeyListener(klReserva);
@@ -281,6 +414,7 @@ public class Finestra extends JFrame {
 		numnitstext.addKeyListener(klReserva);
 		numtext.addKeyListener(klReserva);
 		perstext.addKeyListener(klReserva);
+		textnomclient.addKeyListener(klReserva);
 	}
 
 	private void crearIcones() {
@@ -351,15 +485,25 @@ public class Finestra extends JFrame {
 //Llistes
 		modelReserva = new DefaultListModel<Reserva>();
 		modelClient = new DefaultListModel<Client>();
-		llistareserva = new JList<Reserva>(modelReserva);
 		llistaclient = new JList<Client>(modelClient);
 		llistaclient.setBounds(20, 380, 150, 220);
+		JScrollPane scrollclie = new JScrollPane(llistaclient, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollclie.setBounds(20, 380, 150, 220);
 		panell.add(llistaclient);
+		panell.add(scrollclie);
+		llistareserva = new JList<Reserva>(modelReserva);
 		llistareserva.setBounds(230, 380, 150, 220);
+		llistareserva.setEnabled(true);
+		JScrollPane scrollres = new JScrollPane(llistareserva, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollclie.setBounds(230, 380, 150, 220);
 		panell.add(llistareserva);
+		panell.add(scrollres);
 // elimina
 		botoelimina = new JButton("Elimina!");
 		botoelimina.setBounds(157, 615, 100, 40);
+		botoelimina.setEnabled(false);
 		panell.add(botoelimina);
 
 	}
@@ -434,6 +578,7 @@ public class Finestra extends JFrame {
 		calendari = new JCalendar();
 		calendari.setBounds(50, 330, 300, 200);
 		calendari.setBackground(Color.LIGHT_GRAY);
+		calendari.setMinSelectableDate(Calendar.getInstance().getTime());
 		panell.add(calendari);
 //        Botó reserva
 		botoreserva = new JButton("Reserva");
@@ -467,6 +612,7 @@ public class Finestra extends JFrame {
 		taula1 = new JTable(model);
 		taula1.setBounds(10, 120, panell.getWidth() - 20, 170);
 		taula1.setBackground(Color.LIGHT_GRAY);
+		taula1.setEnabled(false);
 		panell.add(taula1);
 		JScrollPane scroll = new JScrollPane(taula1, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -475,20 +621,24 @@ public class Finestra extends JFrame {
 		JLabel reservaconf = new JLabel("Reserves Confirmades");
 		reservaconf.setFont(new Font("arial", Font.BOLD, 14));
 		reservaconf.setHorizontalAlignment(SwingConstants.LEFT);
-		reservaconf.setBounds(20, 350, 190, 30);
+		reservaconf.setBounds(20, 320, 190, 30);
 		panell.add(reservaconf);
-		datechoose = new JDateChooser();
+		entradasortida = new JToggleButton("Entrades");
+		entradasortida.setBounds(20, 350, 120, 40);
+		panell.add(entradasortida);
+		datechoose = new JDateChooser(new Date());
 		datechoose.setBounds(210, 350, 170, 30);
 		panell.add(datechoose);
 
 		model1 = new DefaultTableModel();
+		model1.addColumn("Dni");
 		model1.addColumn("Nom");
-		model1.addColumn("Date in");
-		model1.addColumn("Date Out");
+		model1.addColumn("Cognoms");
 		model1.addColumn("Habitació");
 		taula2 = new JTable(model1);
 		taula2.setBounds(10, 400, panell.getWidth() - 20, 180);
 		taula2.setBackground(Color.LIGHT_GRAY);
+		taula2.setEnabled(false);
 		panell.add(taula2);
 		JScrollPane scroll1 = new JScrollPane(taula2, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);

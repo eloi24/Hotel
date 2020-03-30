@@ -1,6 +1,11 @@
 package model;
 
 public class Client {
+@Override
+	public String toString() {
+		return ""+this.getNom().substring(0,1)+"."+this.getCognoms()+"-"+this.getDni();
+	}
+
 String nom,cognoms,dni;
 
 public Client(String nom, String cognoms, String dni) {

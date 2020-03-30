@@ -42,6 +42,11 @@ public class Hotel {
 	public void setHabitacions(Habitacio h) {
 		this.habitacions.add(h);
 	}
+	public void eliminaPendents(int index) {
+		this.pendents.remove(index);
+	}
+	
+	
 
 
 	
