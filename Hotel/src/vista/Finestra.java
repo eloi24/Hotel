@@ -91,17 +91,40 @@ public class Finestra extends JFrame {
 		addListenerJdateChooser();
 		addListenerLlistaClie();
 		addListenerLlistaRes();
+		addActionListenerbotoelimina();
 
 	}
 
 	
+
+	private void addActionListenerbotoelimina() {
+botoelimina.addActionListener(new ActionListener() {
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		int opcio = JOptionPane.showConfirmDialog(null, "Estas segur d'eliminar la reserva?");
+		switch (opcio) {
+		case 0:
+			c.eliminarRes(modelReserva, llistareserva.getSelectedValue());
+			c.actualitzaTaules(model,model1);
+			break;
+
+		default:
+			break;
+		}
+	
+	}
+});		
+	}
+
+
 
 	private void addListenerLlistaRes() {
 		ListSelectionListener llistalistener = new ListSelectionListener() {
 			
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				System.out.println("Taula Reserves");
+				botoelimina.setEnabled(true);
 			}
 		};	
 		llistareserva.addListSelectionListener(llistalistener);
@@ -115,7 +138,6 @@ public class Finestra extends JFrame {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				c.actualitzaRes(modelReserva, llistaclient.getSelectedValue());
-				System.out.println("llista");
 			}
 		};
 llistaclient.addListSelectionListener(llistalistener);
@@ -244,7 +266,7 @@ llistaclient.addListSelectionListener(llistalistener);
 					}
 				} else {
 
-					c.addHabitació(numtext.getText(), perstext.getText());
+					c.addHabitacio(numtext.getText(), perstext.getText());
 					MsgHabitació();
 					netejaHab();
 					guardahab.setEnabled(false);
@@ -497,7 +519,7 @@ llistaclient.addListSelectionListener(llistalistener);
 		llistareserva.setEnabled(true);
 		JScrollPane scrollres = new JScrollPane(llistareserva, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scrollclie.setBounds(230, 380, 150, 220);
+		scrollres.setBounds(230, 380, 150, 220);
 		panell.add(llistareserva);
 		panell.add(scrollres);
 // elimina
@@ -598,7 +620,7 @@ llistaclient.addListSelectionListener(llistalistener);
 		titol.setHorizontalAlignment(SwingConstants.CENTER);
 		titol.setBounds(0, 0, panell.getWidth(), 40);
 		panell.add(titol);
-		JLabel reserva = new JLabel("Reserves pendets");
+		JLabel reserva = new JLabel("Reserves pendents");
 		reserva.setFont(new Font("arial", Font.BOLD, 18));
 		reserva.setHorizontalAlignment(SwingConstants.LEFT);
 		reserva.setBounds(20, 70, panell.getWidth(), 40);

@@ -144,7 +144,7 @@ public class Controller {
 		hotel.setNom(nomhoteltext);
 	}
 
-	public void addHabitació(String num, String pers) {
+	public void addHabitacio(String num, String pers) {
 		Habitacio h = new Habitacio(Integer.parseInt(num), Integer.parseInt(pers));
 		hotel.setHabitacions(h);
 	}
@@ -214,26 +214,43 @@ public class Controller {
 
 	public void actualitzaClient(DefaultListModel<Client> modelClient, 
 			String text) {
-		for (Reserva r : hotel.getPendents()) {
-				if (!text.isBlank()) {
-					if (r.getClient().getDni().contains(text) || r.getClient().getNom().contains(text)
-							|| r.getClient().getCognoms().contains(text)) {
-						if (modelClient.getSize()!=0) {
-							if(!modelClient.get(modelClient.getSize()-1).getDni().equals(r.getClient().getDni())) {
-								modelClient.addElement(r.getClient());
-							}	
-						}else {
-							modelClient.addElement(r.getClient());	
-						}
-						
-						
-					} 
-				}
-
+		if (!text.isBlank()) {
+			for (Reserva r : hotel.getPendents()) {
+				
+				if (r.getClient().getDni().contains(text) || r.getClient().getNom().contains(text)
+						|| r.getClient().getCognoms().contains(text)) {
+					if (modelClient.getSize()!=0) {
+						if(!modelClient.get(modelClient.getSize()-1).getDni().equals(r.getClient().getDni())) {
+							modelClient.addElement(r.getClient());
+						}	
+					}else {
+						modelClient.addElement(r.getClient());	
+					}
+					
+					
+				} 
+			}
+			for (Reserva r : hotel.getConfirmades()) {
+				
+				if (r.getClient().getDni().contains(text) || r.getClient().getNom().contains(text)
+						|| r.getClient().getCognoms().contains(text)) {
+					if (modelClient.getSize()!=0) {
+						if(!modelClient.get(modelClient.getSize()-1).getDni().equals(r.getClient().getDni())) {
+							modelClient.addElement(r.getClient());
+						}	
+					}else {
+						modelClient.addElement(r.getClient());	
+					}
+					
+					
+				} 
+			}
+		}
+		
 			
 
 		}
-	}
+
 	public void actualitzaRes(DefaultListModel<Reserva> modelReserva,Client c) {
 		modelReserva.removeAllElements();
 		if (c!=null) {
@@ -265,6 +282,25 @@ public class Controller {
 			System.out.println(r.getDataentrada());
 			
 		}
+	}
+	public void eliminarRes(DefaultListModel<Reserva> model, Reserva r) {
+	model.removeElement(r);
+	hotel.eliminarReserva(r);
+		
+	}
+
+	public void actualitzaTaules(DefaultTableModel model, DefaultTableModel model1) {
+model.setRowCount(0);
+model1.setRowCount(0);
+
+for (Reserva r : hotel.getPendents()) {
+	model.addRow(r.retornaArray());
+	
+}
+for (Reserva r : hotel.getConfirmades()) {
+	model1.addRow(r.retornaArray1());
+	
+}
 	}
 
 }
