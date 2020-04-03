@@ -2,25 +2,19 @@ package controller;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import javax.swing.JToggleButton;
 import javax.swing.table.DefaultTableModel;
 
 import com.toedter.calendar.JCalendar;
 import com.toedter.calendar.JDateChooser;
 
-import model.Client;
-import model.Habitacio;
-import model.Hotel;
-import model.Reserva;
+import model.*;
 import vista.Finestra;
 
 public class Controller {
